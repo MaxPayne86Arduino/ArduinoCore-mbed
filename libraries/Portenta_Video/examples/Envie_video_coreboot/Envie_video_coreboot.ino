@@ -10,6 +10,7 @@ mbed::DigitalOut video_rst(PJ_3);
 
 void setup() {
   // put your setup code here, to run once:
+  printf("#### Started\n");
   delay(1000);
   video_on = 1;
   delay(10);
