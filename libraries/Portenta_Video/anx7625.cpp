@@ -816,15 +816,20 @@ static int anx7625_hpd_change_detect(uint8_t bus)
 	int ret;
 	uint8_t status;
 
-	ret = anx7625_reg_read(bus, RX_P0_ADDR, SYSTEM_STSTUS, &status);
+	printf("%s %d\n", __func__, __LINE__);
+
+	ret = anx7625_reg_read(bus, 0x7e, 0x45, &status); // GPIO_MAP_4
+	//ret = anx7625_reg_read(bus, 0x70, 0x82, &status); // HPD_STATUS
 	if (ret < 0) {
 		ANXERROR("IO error: Failed to clear interrupt status.\n");
 		return ret;
 	}
 
-	if (status & HPD_STATUS) {
+	if (status & 0x80) { // Bit 7
+	//if (status & 0x40) { // Bit 6
 		anx7625_start_dp_work(bus);
 		ANXINFO("HPD received 0x7e:0x45=%#x\n", status);
+		//ANXINFO("HPD received 0x70:0x82=%#x\n", status);
 		return 1;
 	}
 	return 0;
@@ -1324,7 +1329,8 @@ int anx7625_init(uint8_t bus)
 		return -1;
 	}
 
-	while (--retry_hpd_change) {
+	//while (--retry_hpd_change) {
+	while(1) {
 		mdelay(10);
 		int detected = anx7625_hpd_change_detect(bus);
 		if (detected < 0)
